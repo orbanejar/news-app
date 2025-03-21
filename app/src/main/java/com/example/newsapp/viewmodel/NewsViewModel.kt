@@ -13,6 +13,47 @@ import kotlinx.coroutines.launch
  * Handles fetching, searching, and bookmarking news articles.
  */
 class NewsViewModel : ViewModel() {
+    // Enable this flag to use dummy data instead of calling the API (to limit API calling due to 200 max call per day)
+    private val useDummyData = false
+    private val dummyNewsList = listOf(
+        NewsArticle(
+            id = "1",
+            title = "Breaking News: Kotlin Takes Over",
+            description = "Developers around the world are switching to Kotlin for Android development.",
+            mediaUrl = "https://images.unsplash.com/photo-1728044849248-e90f3ec6a889",
+            sourceTitle = "Tech Daily",
+            pubDate = "2025-03-20",
+            isFeatured = true
+        ),
+        NewsArticle(
+            id = "2",
+            title = "AI Revolution in 2025 is transforming industries",
+            description = "Artificial Intelligence is transforming industries faster than expected.",
+            mediaUrl = "https://images.unsplash.com/photo-1742147550712-9c25dc0832aa",
+            sourceTitle = "AI News",
+            pubDate = "2025-03-19",
+            isFeatured = true
+        ),
+        NewsArticle(
+            id = "3",
+            title = "SpaceX Launches New Rocket",
+            description = "Elon Musk's company successfully launches a reusable rocket.",
+            mediaUrl = "https://images.unsplash.com/photo-1742144897659-8a3e8a0a090c",
+            sourceTitle = "Space Journal",
+            pubDate = "2025-03-18",
+            isFeatured = false
+        ),
+        NewsArticle(
+            id = "4",
+            title = "No Image News Sample from the world",
+            description = "",
+            mediaUrl = null,
+            sourceTitle = "News TV",
+            pubDate = "2025-01-01",
+            isFeatured = false
+        )
+    )
+
     private val repository = NewsRepository()
 
     // StateFlow to hold the list of news articles
@@ -40,33 +81,36 @@ class NewsViewModel : ViewModel() {
 
         isLoading = true
         viewModelScope.launch {
-            val response = if (searchQuery.value.isNotBlank()) {
-                repository.searchNews(query = searchQuery.value)
+            if (useDummyData) {
+                // Use dummy data instead of API
+                _newsList.value = dummyNewsList
             } else {
-                repository.getNews(cursor = nextCursor)
-            }
-
-            if (response.isSuccessful) {
-                response.body()?.let { newsResponse ->
-                    val articles = newsResponse.articles?.map { articleResponse ->
-                        NewsArticle(
-                            id = articleResponse.id ?: "${articleResponse.title}-${articleResponse.pubDate}",
-                            title = articleResponse.title ?: "No Title",
-                            sourceTitle = articleResponse.sourceTitle ?: "Unknown Source",
-                            pubDate = articleResponse.pubDate ?: "",
-                            mediaUrl = articleResponse.mediaUrl,
-                            description = articleResponse.description ?: "",
-
-                            // NOTE: Added a custom info to identify featured news since no data from API
-                            isFeatured = articleResponse.mediaUrl != null
-                        )
-                    } ?: emptyList()
-
-                    _newsList.value = _newsList.value + articles
-                    nextCursor = newsResponse.nextCursor
+                val response = if (searchQuery.value.isNotBlank()) {
+                    repository.searchNews(query = searchQuery.value)
+                } else {
+                    repository.getNews(cursor = nextCursor)
                 }
-            } else {
-                println("Error: ${response.errorBody()?.string()}")
+
+                if (response.isSuccessful) {
+                    response.body()?.let { newsResponse ->
+                        val articles = newsResponse.articles?.map { articleResponse ->
+                            NewsArticle(
+                                id = articleResponse.id ?: "${articleResponse.title}-${articleResponse.pubDate}",
+                                title = articleResponse.title ?: "No Title",
+                                sourceTitle = articleResponse.sourceTitle ?: "Unknown Source",
+                                pubDate = articleResponse.pubDate ?: "",
+                                mediaUrl = articleResponse.mediaUrl,
+                                description = articleResponse.description ?: "",
+                                isFeatured = articleResponse.mediaUrl != null
+                            )
+                        } ?: emptyList()
+
+                        _newsList.value = _newsList.value + articles
+                        nextCursor = newsResponse.nextCursor
+                    }
+                } else {
+                    println("Error: ${response.errorBody()?.string()}")
+                }
             }
             isLoading = false
         }

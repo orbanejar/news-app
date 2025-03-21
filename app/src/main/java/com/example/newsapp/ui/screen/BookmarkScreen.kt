@@ -7,31 +7,36 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.newsapp.data.model.NewsArticle
 import com.example.newsapp.ui.component.NewsCard
+import com.example.newsapp.viewmodel.NewsViewModel
 
 /**
  * A composable function that displays the list of bookmarked news articles in a grid layout.
  *
- * @param bookmarkedNews A list of news articles that have been bookmarked.
+ * @param viewModel The NewsViewModel to observe bookmarked articles.
  * @param onNewsClick Callback triggered when a news article is clicked.
  * @param onBookmarkClick Callback triggered when the bookmark icon is clicked.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BookmarkScreen(
-    bookmarkedNews: List<NewsArticle>, // List of bookmarked news articles
+    viewModel: NewsViewModel,
     onNewsClick: (NewsArticle) -> Unit, // Callback for handling article click events
     onBookmarkClick: (NewsArticle) -> Unit // Callback for handling bookmark toggle
 ) {
-    val gridState = rememberLazyGridState()
+    val bookmarkedNews by viewModel.bookmarkedNews.collectAsState()
 
     if (bookmarkedNews.isEmpty()) {
         // Display a message if no bookmarks are available
         Text(text = "No Bookmarks yet", modifier = Modifier.padding(16.dp))
     } else {
+        val gridState = rememberLazyGridState()
+
         // Display bookmarked articles in a 2-column grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),

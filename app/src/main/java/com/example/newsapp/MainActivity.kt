@@ -82,14 +82,15 @@ fun NewsApp() {
                 if (article != null) {
                     NewsDetailScreen(
                         article = article,
-                        isBookmarked = newsViewModel.bookmarkedNews.value.any { it.id == article.id },
+                        viewModel = newsViewModel,
                         onBookmarkClick = { newsViewModel.toggleBookmark(article) }
                     )
                 }
             }
             composable("bookmark") {
+                // Pass the ViewModel to BookmarkScreen for reactive state collection.
                 BookmarkScreen(
-                    bookmarkedNews = newsViewModel.bookmarkedNews.value,
+                    viewModel = newsViewModel,
                     onNewsClick = { selectedNews ->
                         navController.navigate("newsDetail/${selectedNews.title}")
                     },
