@@ -15,6 +15,7 @@ interface ApiService {
     @GET("v1/news")
     suspend fun getNews(
         @Header("x-api-key") apiKey: String,
+        @Header("User-Agent") userAgent: String = "NewsApp/1.0",
         @Query("cursor") cursor: String? = null,
         @Query("per_page") perPage: Int = 40
     ): Response<NewsResponse>
@@ -23,6 +24,7 @@ interface ApiService {
     @GET("v1/news")
     suspend fun searchNews(
         @Header("x-api-key") apiKey: String,
+        @Header("User-Agent") userAgent: String = "NewsApp/1.0",
         @Query("q") query: String,
         @Query("per_page") perPage: Int = 40
     ): Response<NewsResponse>

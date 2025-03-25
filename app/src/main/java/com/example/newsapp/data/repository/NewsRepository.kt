@@ -8,7 +8,7 @@ import retrofit2.Response
  * Repository class responsible for fetching news data from the API.
  */
 class NewsRepository {
-    // API key required for authentication. (Temp location; consider moving this to a secure place)
+    // API key required for authentication. (Temp location)
     private val apiKey = "ikv5W3Jlv951XLX0EipUJvcqarg8pm-_WCVKj72mGBk"
 
     /**

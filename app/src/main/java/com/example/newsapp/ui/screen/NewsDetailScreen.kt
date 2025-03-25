@@ -1,5 +1,7 @@
 package com.example.newsapp.ui.screen
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -24,6 +26,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.newsapp.data.model.NewsArticle
 import com.example.newsapp.viewmodel.NewsViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * Displays the detailed view of a news article.
@@ -35,6 +39,7 @@ import com.example.newsapp.viewmodel.NewsViewModel
  * @param viewModel The NewsViewModel providing the bookmarked state.
  * @param onBookmarkClick Callback triggered when the bookmark icon is clicked.
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NewsDetailScreen(
     article: NewsArticle,
@@ -45,6 +50,9 @@ fun NewsDetailScreen(
     val bookmarkedNews by viewModel.bookmarkedNews.collectAsState()
     // Determine if the current article is bookmarked
     val isBookmarked = bookmarkedNews.any { it.id == article.id }
+    val parsedDateTime = LocalDateTime.parse(article.pubDate)
+    val formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a")
+    val formattedDateTime = parsedDateTime.format(formatter)
 
     Column(
         modifier = Modifier
@@ -121,14 +129,13 @@ fun NewsDetailScreen(
         }
 
         // Source & Published Date
-        // TODO: To modify date display format
         Text(
             text = "Source: ${article.sourceTitle}",
             fontSize = 14.sp,
             color = Color.Gray
         )
         Text(
-            text = "Published: ${article.pubDate}",
+            text = "Published: $formattedDateTime",
             fontSize = 14.sp,
             color = Color.Gray
         )

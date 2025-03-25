@@ -40,7 +40,6 @@ fun NewsListScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Search bar to filter news articles
-        // TODO: To modify behavior for empty search [to display featured news]
         SearchBar(
             query = viewModel.searchQuery.collectAsState().value,
             onQueryChanged = { viewModel.searchQuery.value = it },
